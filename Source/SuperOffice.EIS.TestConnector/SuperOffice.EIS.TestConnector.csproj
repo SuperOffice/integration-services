@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="ErpClient.xlsm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ErpClient.xlsm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+	  <PackageReference Include="EPPlus" />
+	  <PackageReference Include="SuperOffice.Crm.Online.IntegrationServices" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+	  <PackageReference Include="System.Configuration.ConfigurationManager" />
+	  <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+	  <PackageReference Include="System.Text.Encoding.CodePages" />
+  </ItemGroup>
+</Project>
