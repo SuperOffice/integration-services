@@ -1,5 +1,6 @@
 ﻿using ConnectorService.Models;
 using ConnectorService.Services;
+using ConnectorService.Utils;
 using CoreWCF.Configuration;
 using CoreWCF.Description;
 using static SuperOffice.Configuration.ConfigFile;
@@ -27,7 +28,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddTransient<QuoteConnectorWS>()
                 .AddTransient<ErpConnectorWS>()
-                .AddCoreWcfDepedency();
+                .AddCoreWcfDepedency()
+                .AddSingleton<IExcelHandler, ExcelHandler>();
 
             return services;
         }

@@ -1,13 +1,18 @@
 ﻿
 
 using ConnectorService.Models;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using SuperOffice.Connectors;
 using SuperOffice.Online.IntegrationService;
 using SuperOffice.Online.IntegrationService.Contract.V1;
 using SuperOffice.Online.Tokens;
 using SuperOffice.SuperID.Contracts;
 using SuperOffice.SuperID.Contracts.V1;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ConnectorService.Services
 {
@@ -114,7 +119,7 @@ namespace ConnectorService.Services
         /// </summary>
         /// <param name="requestConfigFields">The original connection configuration fields.</param>
         /// <returns>A new ConnectionConfigFields object with the updated values.</returns>
-        private static ConnectionConfigFields RefactorConnectionConfigFields(ConnectionConfigFields requestConfigFields)
+        private ConnectionConfigFields RefactorConnectionConfigFields(ConnectionConfigFields requestConfigFields)
         {
             // Create a new ConnectionConfigFields object to hold the updated values
             var updatedConnectionConfigFields = new ConnectionConfigFields();
@@ -126,8 +131,7 @@ namespace ConnectorService.Services
             }
             else
             {
-                // Set default fileName, as required by the ExcelQuoteConnector
-                updatedConnectionConfigFields.Add("DefaultFileName", "ExcelConnectorWithCapabilities.xlsx");
+                updatedConnectionConfigFields.Add("DefaultFileName", _applicationOptions.ExcelPath + "/" + "ExcelConnectorWithCapabilities.xlsx");
             }
 
             // Add the rest of the connection config fields
@@ -137,6 +141,27 @@ namespace ConnectorService.Services
             }
 
             return updatedConnectionConfigFields;
+        }
+
+        protected override ClaimsIdentity ValidateSuperOfficeSignedToken(string token)
+        {
+            string ValidIssuer = "SuperOffice AS";
+
+            var certificatePath = "App_Data/SuperOfficeFederatedLogin.crt";
+
+            if (string.IsNullOrEmpty(certificatePath) || !File.Exists(certificatePath))
+            {
+                throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenValidationParameters = new TokenValidationParameters();
+            tokenValidationParameters.ValidateAudience = false;
+            tokenValidationParameters.ValidIssuer = ValidIssuer;
+            tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(certificatePath));
+
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+            return principal.Identities.OfType<ClaimsIdentity>().FirstOrDefault();
         }
     }
 }

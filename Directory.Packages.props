@@ -3,18 +3,21 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageVersion Include="SuperOffice.Crm.Online.IntegrationServices" Version="10.3.12.929" />
+	  <PackageVersion Include="SuperOffice.Crm.Online.IntegrationServices" Version="10.5.3.692" />
 	  <PackageVersion Include="SuperOffice.Online.Tokens" Version="7.21.0" />
 	  <PackageVersion Include="SuperOffice.SuperID.Contracts" Version="6.15.8348.1534" />
 	  <PackageVersion Include="EPPlus" Version="6.1.3" />
 	  <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+	  <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="6.36.0" />
 	  <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	  <PackageVersion Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
 	  <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
 	  <PackageVersion Include="System.Diagnostics.EventLog" Version="8.0.1" />
+	  <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="6.36.0" />
 	  <PackageVersion Include="System.ServiceModel.Primitives" Version="4.10.3.0" />
 	  <PackageVersion Include="System.Text.Encoding.CodePages" Version="8.0.0" />
 	  <PackageVersion Include="CoreWCF.Http" Version="1.6.0" />
 	  <PackageVersion Include="CoreWCF.Primitives" Version="1.6.0" />
+	  <PackageVersion Include="NSwag.AspNetCore" Version="14.2.0" />
   </ItemGroup>
 </Project>

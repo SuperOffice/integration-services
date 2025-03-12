@@ -15,6 +15,10 @@ using SuperOffice.Online.Tokens;
 using SuperOffice.SuperID.Contracts;
 using SuperOffice.SuperID.Contracts.V1;
 using SuperOffice.Online.IntegrationService;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ConnectorService.Services
 {
@@ -53,7 +57,7 @@ namespace ConnectorService.Services
 
             try
             {
-                var token = _superOfficeTokenValidator.ValidateToken(request.SignedToken);
+                var token = ValidateSuperOfficeSignedToken(request.SignedToken);
 
                 if (!string.Equals("spn:" + applicationIdentifier, token.FindFirst("aud").Value, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -106,6 +110,7 @@ namespace ConnectorService.Services
 
         private void ParseAssemblies()
         {
+            var temp = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (!AssemblyHelper.IsSystemAssembly(assembly) && !_parsedAssemblies.Contains(assembly))
@@ -404,6 +409,27 @@ namespace ConnectorService.Services
             {
                 return ResponseHelper.CreateWSResponse<ActorArrayPluginResponseWS>(crash);
             }
+        }
+
+        private ClaimsIdentity ValidateSuperOfficeSignedToken(string token)
+        {
+            string ValidIssuer = "SuperOffice AS";
+
+            var certificatePath = "App_Data/SuperOfficeFederatedLogin.crt";
+
+            if (string.IsNullOrEmpty(certificatePath) || !File.Exists(certificatePath))
+            {
+                throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenValidationParameters = new TokenValidationParameters();
+            tokenValidationParameters.ValidateAudience = false;
+            tokenValidationParameters.ValidIssuer = ValidIssuer;
+            tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(certificatePath));
+
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+            return principal.Identities.OfType<ClaimsIdentity>().FirstOrDefault();
         }
     }
 }

@@ -334,7 +334,7 @@ namespace SuperOffice.ErpSync.TestConnector
             _excelFilePath = fileName;
             using (var fileStream = File.OpenRead(fileName))
             {
-                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 ExcelPackage = new ExcelPackage();
                 ExcelPackage.Load(fileStream);
             }

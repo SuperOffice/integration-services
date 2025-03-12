@@ -7,6 +7,8 @@
 	<UserSecretsId>30cff357-38eb-4269-9ea0-ee52631f205b</UserSecretsId>
 	<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	<DockerfileContext>.</DockerfileContext>
+	<DockerfileFile>..\..\Dockerfile</DockerfileFile>
+	<DockerfileRunArguments>-v connectorvolme:/app/Uploads</DockerfileRunArguments>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SuperOffice.ExcelQuoteConnector\SuperOffice.ExcelQuoteConnector.csproj" />
@@ -15,7 +17,6 @@
   <ItemGroup>
     <PackageReference Include="CoreWCF.Http" />
     <PackageReference Include="CoreWCF.Primitives" />
-    <PackageReference Include="SuperOffice.SuperID.Contracts" />
     <PackageReference Include="SuperOffice.Online.Tokens" />
     <PackageReference Include="System.Diagnostics.EventLog" />
 	<PackageReference Include="System.Diagnostics.DiagnosticSource" />
@@ -23,14 +24,23 @@
 	<PackageReference Include="SuperOffice.Crm.Online.IntegrationServices" />
 	<PackageReference Include="System.ServiceModel.Primitives" />
 	<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+	<PackageReference Include="NSwag.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
     <!-- Don't include appsettings.Development.json when publishing -->
     <Content Update="*.json" CopyToPublishDirectory="Never" />
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
     <Content Update="appsettings.json" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
     <None Update="App_Data\PrivateKey.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="App_Data\SuperOfficeFederatedLogin.crt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

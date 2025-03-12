@@ -904,7 +904,7 @@ namespace SuperOffice.Connectors
             if (!Filename.EndsWith(".xlsx") && !Filename.EndsWith(".xls"))
                 throw new ArgumentException("Filename does not end with .xlsx or .xls extension", "Filename");
 
-            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             var excelPackage = new ExcelPackage();
 
             using (var fileStream = File.OpenRead(Filename))

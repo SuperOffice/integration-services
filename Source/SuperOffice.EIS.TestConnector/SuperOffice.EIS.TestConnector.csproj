@@ -17,8 +17,10 @@
 	  <PackageReference Include="EPPlus" />
 	  <PackageReference Include="SuperOffice.Crm.Online.IntegrationServices" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+	  <PackageReference Include="Microsoft.IdentityModel.Tokens" />
 	  <PackageReference Include="System.Configuration.ConfigurationManager" />
 	  <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 	  <PackageReference Include="System.Text.Encoding.CodePages" />
   </ItemGroup>
 </Project>

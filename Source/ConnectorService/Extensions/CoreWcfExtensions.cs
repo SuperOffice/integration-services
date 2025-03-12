@@ -26,11 +26,13 @@ namespace ConnectorService.Extensions
             {
                 serviceBuilder.AddCoreWcfServices();
 
-                serviceBuilder.AddCoreWcfEndpoints(BasicHttpSecurityMode.None);
-
                 if (wcfOptions.EnableHttpsEndpoints)
                 {
                     serviceBuilder.AddCoreWcfEndpoints(BasicHttpSecurityMode.Transport);
+                }
+                else
+                {
+                    serviceBuilder.AddCoreWcfEndpoints(BasicHttpSecurityMode.None);
                 }
             });
 
@@ -65,8 +67,16 @@ namespace ConnectorService.Extensions
 
         internal static WebApplication EnableWsdlGet(this WebApplication app)
         {
+            var wcfOptions = app.GetWcfOptions();
             var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
-            serviceMetadataBehavior.HttpGetEnabled = true;
+            if (wcfOptions.EnableHttpsEndpoints)
+            {
+                serviceMetadataBehavior.HttpsGetEnabled = true;
+            }
+            else
+            {
+                serviceMetadataBehavior.HttpGetEnabled = true;
+            }
             return app;
         }
     }
