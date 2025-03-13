@@ -10,6 +10,8 @@ using Ical.Net.CalendarComponents;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using ConnectorService.Api;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,10 +43,12 @@ if (app.Environment.IsDevelopment())
         config.DocExpansion = "list";
     });
 }
-
 app
     .AddWcfEndpoints()
     .EnableWsdlGet();
+
+///Fix to load the SuperOffice.EIS.TestConnector.dll, as it needs to be a loaded assembly before the ERPConnectorWS.cs tries to use it.
+Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SuperOffice.EIS.TestConnector.dll"));
 
 app.AddExcelHandlerEndpoints();
 
