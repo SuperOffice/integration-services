@@ -136,8 +136,6 @@ namespace ConnectorService.Services
             var assemblyNames = _erpConnectorOptions.ConnectorAssemblies;
             // EisPluginLoader will parse assemblies and find plugins.
 
-            //var temp = new Uri(OperationContext.Current.IncomingMessageHeaders.To + "?CONNECTORNAME=DummyConnector");
-            //var plugin = EisPluginLoader.Instance.GetConnector(temp, assemblyNames);
             var plugin = EisPluginLoader.Instance.GetConnector(OperationContext.Current.IncomingMessageHeaders.To, assemblyNames);
 
             // returns matching plugin (uses ?ConnectorName=xyz query string in URL), or throws NotFound exception

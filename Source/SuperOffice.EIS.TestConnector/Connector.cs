@@ -41,7 +41,7 @@ namespace SuperOffice.ErpSync.TestConnector
 
         public Connector()
         {
-            var tempPath = Path.GetTempPath();
+            var tempPath = AppDomain.CurrentDomain.BaseDirectory;
             _connectionsFile = Path.Combine(tempPath, "EIS_Connections.txt");
         }
 
