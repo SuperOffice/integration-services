@@ -1,8 +1,8 @@
-﻿namespace ConnectorService.Models
-{
-    public class FileConfigDataStoreOptions
-    {
-        public const string FileConfigDataStore = "FileConfigDataStore";
-        public string ConfigFolder { get; set; }
-    }
-}
+﻿//namespace ConnectorService.Models
+//{
+//    public class FileConfigDataStoreOptions
+//    {
+//        public const string FileConfigDataStore = "FileConfigDataStore";
+//        public string ConfigFolder { get; set; }
+//    }
+//}

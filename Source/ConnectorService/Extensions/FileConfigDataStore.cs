@@ -19,11 +19,11 @@ namespace ConnectorService.Extensions
     [ConfigDataStore("FileStorage", int.MaxValue / 2)]
     public class FileConfigDataStore : IConfigDataStore
     {
-        readonly FileConfigDataStoreOptions _options;
+        readonly string _baseDirectory;
 
-        public FileConfigDataStore(IOptions<FileConfigDataStoreOptions> fileConfigDataStoreOptions)
+        public FileConfigDataStore()
         {
-            _options = fileConfigDataStoreOptions.Value;
+            _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace ConnectorService.Extensions
         public void DeleteData(string key)
         {
             CheckConfigFolder();
-            var path = Path.Combine(_options.ConfigFolder, key);
+            var path = Path.Combine(_baseDirectory, key);
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
         }
@@ -49,7 +49,7 @@ namespace ConnectorService.Extensions
         {
             CheckConfigFolder();
 
-            var path = Path.Combine(_options.ConfigFolder, key);
+            var path = Path.Combine(_baseDirectory, key);
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
@@ -78,7 +78,7 @@ namespace ConnectorService.Extensions
         {
             CheckConfigFolder();
 
-            var path = Path.Combine(_options.ConfigFolder, key);
+            var path = Path.Combine(_baseDirectory, key);
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
@@ -101,10 +101,8 @@ namespace ConnectorService.Extensions
 
         private void CheckConfigFolder()
         {
-            if (string.IsNullOrWhiteSpace(_options.ConfigFolder))
-                throw new Exception($"Appsetting {FileConfigDataStoreOptions.FileConfigDataStore}:{nameof(_options.ConfigFolder)} is missing.");
-            if (!Directory.Exists(_options.ConfigFolder))
-                Directory.CreateDirectory(_options.ConfigFolder);
+            if (!Directory.Exists(_baseDirectory))
+                Directory.CreateDirectory(_baseDirectory);
         }
 
     }
