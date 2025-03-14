@@ -11,16 +11,30 @@ This project is the wrapper which exposes the services for the QuoteConnector.
 
 Since .net Core does not natively support WCF, this projects makes use of the community-driven project [coreWCF](https://github.com/CoreWCF/CoreWCF) to add this support. CoreWCF has been picked up by microsoft and is now part of their [support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/corewcf), but SuperOffice does not have anything to do with this support directly.
 
+### Minimalistic API
+
+The ConnectorService project contains a minimalistic API for handling reading from and writing to the ExcelFiles. It also enables the user to upload a new Excel-file to the service, or download the [template-excelfile](./Source/ConnectorService/Resources/ExcelConnectorWithCapabilities.xlsx). 
+
+### EPPLUS
+
+The service uses the [EPPLUS](https://www.epplussoftware.com/) for reading from and writing to excelfiles. This is a licensed product, and since this project is a sample (and not to be used in production), the license is set to be [NonCommercial](./Source/ConnectorService/Utils/ExcelHandler.cs#L29).
+
+For production use, you need to acquire a license from EPPLUS (or make sure you adhere to their licensing terms).
+
 ### QuoteConnectorWS
 
 This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the QuoteConnector, and is responsible for handling the incoming requests and returning the responses.
 
-It requires a special snippet to check if the incoming request comes from SuperOffice Online. The snippet can be found in RefactorConnectionConfigFields() in [QuoteConnectorWS.cs](./ConnectorService/Services/QuoteConnectorWS.cs).
+Note: 
+The service requires a special snippet to check if the incoming request comes from SuperOffice Online. The snippet can be found in RefactorConnectionConfigFields() in [QuoteConnectorWS.cs](./Source/ConnectorService/Services/QuoteConnectorWS.cs).
+This snippet is not mandatory for all connectors, but the [implementation](./Source/SuperOffice.ExcelQuoteConnector/ExcelQuoteConnector.cs#L255) for the connector expects the fileName to be in the first position of the `connectionConfigFields` dictionary. 
+This filename is used to load data from Excel in [ReadInData()](./Source/SuperOffice.ExcelQuoteConnector/ExcelQuoteConnector.cs#L878)
+This workaround is necessary to support both onsite and online versions of SuperOffice.
 
 ### ERPConnectorWS
 
 ## SuperOffice.ExcelQuoteConnector
-Contains the implementation of the QuoteConnector, using a locally stored Excel file as the data source.
+Contains the implementation of the QuoteConnector, using a locally stored Excel file as the data source. **This implementation is not intended for production use, but as a sample for how to implement a QuoteConnector.**
 
 ## Quickstart
 
