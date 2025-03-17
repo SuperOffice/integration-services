@@ -36,13 +36,15 @@ namespace SuperOffice.ErpSync.TestConnector
 
         public const string ConnectorName = "Test.Excel";
         private readonly string _connectionsFile = "";
+        private readonly string _fileBaseDir = "";
 
         private readonly List<Connection> _connectionList = new List<Connection>();
 
         public Connector()
         {
-            var tempPath = AppDomain.CurrentDomain.BaseDirectory;
-            _connectionsFile = Path.Combine(tempPath, "EIS_Connections.txt");
+            var temp = AppContext.BaseDirectory;
+            _fileBaseDir = Path.Combine(AppContext.BaseDirectory, "Resources");
+            _connectionsFile = Path.Combine(_fileBaseDir, "EIS_Connections.txt");
         }
 
         private Connection GetConnection(Guid connectionId)
@@ -200,7 +202,7 @@ namespace SuperOffice.ErpSync.TestConnector
                 ri.IsOk = false;
                 return ri;
             }
-            else if (!File.Exists(connectionInfo["Filename"]))
+            else if (!File.Exists(Path.Combine(_fileBaseDir, connectionInfo["Filename"])))
             {
                 ri.UserExplanation = string.Format("Excel Filename '{0}' does not exist on the ERP Services server.", connectionInfo["Filename"]);
                 ri.IsOk = false;

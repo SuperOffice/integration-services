@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using SuperOffice.CRM;
@@ -12,11 +13,15 @@ namespace SuperOffice.ErpSync.TestConnector
     {
         private ExcelHandler _Excel = null;
         private readonly string ExcelDoc = "";
+        private readonly string _fileBaseDir = "";
 
         public Connection(Guid connectionId, string excelDoc)
         {
             ConnectionId = connectionId;
-            ExcelDoc = excelDoc;
+            _fileBaseDir = Path.Combine(AppContext.BaseDirectory, "Resources");
+            ExcelDoc = Path.Combine(_fileBaseDir, excelDoc);
+
+            //ExcelDoc = excelDoc;
         }
 
         public bool Gui { get; set; }

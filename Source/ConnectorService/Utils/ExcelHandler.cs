@@ -34,7 +34,7 @@ namespace ConnectorService.Utils
 
         private List<T> SheetToCollectionList<T>(string fileName)
         {
-            string filePath = Path.Combine(_applicationOptions.BaseFilePath, fileName);
+            string filePath = Path.Combine(_applicationOptions.ResourcesPath, fileName);
             using var p = new ExcelPackage(filePath);
             ExcelWorksheet sheet = p.Workbook.Worksheets[typeof(T).Name]; // Get the sheet with the same name as the class
 
@@ -77,7 +77,7 @@ namespace ConnectorService.Utils
 
         public string InsertCapabilities(string fileName)
         {
-            string filePath = Path.Combine(_applicationOptions.BaseFilePath, fileName);
+            string filePath = Path.Combine(_applicationOptions.ResourcesPath, fileName);
             using var p = new ExcelPackage(filePath);
             ExcelWorksheet sheet = p.Workbook.Worksheets[typeof(Capabilities).Name]; // Get the sheet with the same name as the class
 
@@ -105,7 +105,7 @@ namespace ConnectorService.Utils
 
         public void WriteToExcelSheet(string fileName)
         {
-            string filePath = Path.Combine(_applicationOptions.BaseFilePath, fileName);
+            string filePath = Path.Combine(_applicationOptions.ResourcesPath, fileName);
             using var p = new ExcelPackage(filePath);
 
             var sheet = p.Workbook.Worksheets.Add("Sheet 2");
@@ -120,7 +120,7 @@ namespace ConnectorService.Utils
 
         public string ReadSheetCell(string fileName, string sheetName, int row, int column)
         {
-            string filePath = Path.Combine(_applicationOptions.BaseFilePath, fileName);
+            string filePath = Path.Combine(_applicationOptions.ResourcesPath, fileName);
             using var p = new ExcelPackage(filePath);
 
             ExcelWorksheet sheet = p.Workbook.Worksheets[sheetName];

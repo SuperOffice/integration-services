@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using ConnectorService.Models;
-using CoreWCF;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using SuperOffice.CRM;
@@ -20,6 +19,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Reflection.Metadata;
+using CoreWCF;
 
 namespace ConnectorService.Services
 {
@@ -28,7 +28,6 @@ namespace ConnectorService.Services
         public const string Endpoint = "ErpConnectorWS.svc";
         readonly HashSet<Assembly> _parsedAssemblies = new();
         private readonly ErpConnectorOptions _erpConnectorOptions;
-        private readonly ApplicationOptions _applicationOptions;
         private readonly SuperIdOptions _superIdOptions;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
@@ -44,7 +43,6 @@ namespace ConnectorService.Services
         )
         {
             _erpConnectorOptions = erpConnectorOptions.Value;
-            _applicationOptions = applicationOptions.Value;
             _superIdOptions = superIdOptions.Value;
             _webHostEnvironment = webHostEnvironment;
             _superOfficeTokenValidator = superOfficeTokenValidator
@@ -54,7 +52,7 @@ namespace ConnectorService.Services
 
         AuthenticationResponse IIntegrationServiceConnectorAuth.Authenticate(AuthenticationRequest request)
         {
-            var applicationIdentifier = _applicationOptions.ClientId;
+            var applicationIdentifier = _erpConnectorOptions.ClientId;
 
             try
             {
@@ -87,7 +85,7 @@ namespace ConnectorService.Services
 
         public string GetPrivateKey()
         {
-            var fileName = _applicationOptions.PrivateKeyFile;
+            var fileName = _erpConnectorOptions.PrivateKeyFile;
             if (!Path.IsPathRooted(fileName))
                 fileName = Path.Combine(_webHostEnvironment.ContentRootPath, path2: fileName);
             return File.ReadAllText(fileName);

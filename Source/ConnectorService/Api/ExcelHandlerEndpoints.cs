@@ -13,9 +13,10 @@ namespace ConnectorService.Api
 {
     public static class ExcelHandlerEndpoints
     {
+        private static string _resourcesPath = "Resources";
         public static void AddExcelHandlerEndpoints(this WebApplication app)
         {
-            app.MapGet("/", () => "Hello World!");
+            app.MapGet("/", () => "Starter page for the Connector Service!");
             app.MapGet("/read-capabilities/{filename}", GetAllCapabilities);
             app.MapPost("/write-tofile/{filename}", WriteToFile);
             app.MapGet("/read-cell-from-sheet/{filename}", ReadSheetCell);
@@ -61,8 +62,6 @@ namespace ConnectorService.Api
 
         private static async Task<IResult> UploadFile(IFormFile file, string fileName)
         {
-            string volumePath = "Uploads";  // This is the path inside the container
-
             if (fileName == null)
             {
                 fileName = file.FileName;
@@ -70,7 +69,7 @@ namespace ConnectorService.Api
 
             if (file.Length > 0)
             {
-                var filePath = Path.Combine(volumePath, fileName);
+                var filePath = Path.Combine(_resourcesPath, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -84,9 +83,7 @@ namespace ConnectorService.Api
 
         private static IResult DownloadFileStream(string fileName = "ExcelConnectorWithCapabilities.xlsx")
         {
-            string volumePath = "Resources";  // This is the path inside the container
-
-            var filePath = Path.Combine(volumePath, fileName);
+            var filePath = Path.Combine(_resourcesPath, fileName);
 
             if (!File.Exists(filePath))
             {

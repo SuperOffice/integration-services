@@ -20,23 +20,23 @@ namespace ConnectorService.Services
     {
         public const string Endpoint = "QuoteConnectorWS.svc";
         private readonly SuperIdOptions _superIdOptions;
-        private readonly ApplicationOptions _applicationOptions;
+        private readonly QuoteConnectorOptions _quoteConnectorOptions;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
         private readonly PartnerTokenIssuer _partnerTokenIssuer;
 
         public QuoteConnectorWS(
             IOptions<SuperIdOptions> superIdOptions,
-            IOptions<ApplicationOptions> applicationOptions,
+            IOptions<QuoteConnectorOptions> quoteConnectorOptions,
             ISuperOfficeTokenValidator superOfficeTokenValidator = null,
             IPartnerTokenIssuer partnerTokenIssuer = null
             ) : base
             (
-                applicationOptions.Value.ClientId,
-                GetPrivateKey(applicationOptions.Value.PrivateKeyFile)
+                quoteConnectorOptions.Value.ClientId,
+                GetPrivateKey(quoteConnectorOptions.Value.PrivateKeyFile)
             )
             {
                 _superIdOptions = superIdOptions.Value;
-                _applicationOptions = applicationOptions.Value;
+                _quoteConnectorOptions = quoteConnectorOptions.Value;
                 _superOfficeTokenValidator = superOfficeTokenValidator
                 ?? new SuperOfficeTokenValidator(new LocalStoreSuperIdCertificateResolver(thumbbprint: _superIdOptions.Certificate)); // This certificate should be loaded from online's discovery document.
                 _partnerTokenIssuer = new PartnerTokenIssuer(new PartnerCertificateResolver(() => PrivateKey));
@@ -50,7 +50,7 @@ namespace ConnectorService.Services
         /// <returns>An AuthenticationResponse indicating the result of the authentication process.</returns>
         AuthenticationResponse IIntegrationServiceConnectorAuth.Authenticate(AuthenticationRequest request)
         {
-            var applicationIdentifier = _applicationOptions.ClientId;
+            var applicationIdentifier = _quoteConnectorOptions.ClientId;
 
             try
             {
@@ -127,11 +127,11 @@ namespace ConnectorService.Services
             // Try to retrieve the file name from the connection config fields
             if (requestConfigFields.TryGetValue("#1", out var fileName))
             {
-                updatedConnectionConfigFields.Add("#1", fileName);
+                updatedConnectionConfigFields.Add("#1", Path.Combine(Path.Combine(AppContext.BaseDirectory, "Resources"), fileName));
             }
             else
             {
-                updatedConnectionConfigFields.Add("DefaultFileName", _applicationOptions.ExcelPath + "/" + "ExcelConnectorWithCapabilities.xlsx");
+                updatedConnectionConfigFields.Add("DefaultFileName", Path.Combine(Path.Combine(AppContext.BaseDirectory, "Resources"), "ExcelConnectorWithCapabilities.xlsx"));
             }
 
             // Add the rest of the connection config fields

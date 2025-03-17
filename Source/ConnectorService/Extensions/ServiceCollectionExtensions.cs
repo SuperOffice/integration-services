@@ -15,8 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddOptions<ApplicationOptions>(config, ApplicationOptions.Application)
                 .AddOptions<SuperIdOptions>(config, SuperIdOptions.SuperId)
-                .AddOptions<WcfOptions>(config, WcfOptions.Wcf)
-                //.AddOptions<FileConfigDataStoreOptions>(config, FileConfigDataStoreOptions.FileConfigDataStore)
+                .AddOptions<QuoteConnectorOptions>(config, QuoteConnectorOptions.QuoteConnector)
                 .AddOptions<ErpConnectorOptions>(config, ErpConnectorOptions.ErpConnector);
 
             return services;
