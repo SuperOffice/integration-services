@@ -5,17 +5,12 @@ This project is created as a sample for how to set up a QuoteConnector and ERPCo
 ## Architecture
 
 An overview of the architecture can be seen in [Architecture.dsl](./Architecture.dsl).
+To view the diagram, you can use the free tool [structurizr](https://structurizr.com/dsl), or you can use vscode with the [c4-dsl-extension](https://marketplace.visualstudio.com/items?itemName=systemticks.c4-dsl-extension).
 
 ## ConnectorService
 This project is the wrapper which exposes the services for the QuoteConnector.
 
 Since .net Core does not natively support WCF, this projects makes use of the community-driven project [coreWCF](https://github.com/CoreWCF/CoreWCF) to add this support. CoreWCF has been picked up by microsoft and is now part of their [support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/corewcf), but SuperOffice does not have anything to do with this support directly.
-
-### Minimalistic API
-
-The ConnectorService project contains a minimalistic API for handling reading from and writing to the ExcelFiles. It also enables the user to upload a new Excel-file to the service, or download the [template-excelfile](./Source/ConnectorService/Resources/ExcelConnectorWithCapabilities.xlsx). 
-
-All endpoints configured for this sample can be found in [ExcelHandlerEndpoints.cs](./Source/ConnectorService/API/ExcelHandlerEndpoints.cs).
 
 ### EPPLUS
 
@@ -24,6 +19,8 @@ The service uses the [EPPLUS](https://www.epplussoftware.com/) for reading from 
 For production use, you need to acquire a license from EPPLUS (or make sure you adhere to their licensing terms).
 
 ### QuoteConnectorWS
+
+Service-endpoint: [https://HOSTNAME/Services/QuoteConnector.svc](./Source/ConnectorService/Services/QuoteConnector.cs)
 
 This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the QuoteConnector, and is responsible for handling the incoming requests and returning the responses.
 
@@ -35,8 +32,23 @@ This workaround is necessary to support both onsite and online versions of Super
 
 ### ERPConnectorWS
 
+Service-endpoint: [https://HOSTNAME/Services/ErpConnector.svc](./Source/ConnectorService/Services/ERPConnectorWS.cs)
+
+This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the ErpSyncConnector, and is responsible for handling the incoming requests and returning the responses.
+
+### Minimalistic API
+
+The ConnectorService project contains a minimalistic API for handling reading from and writing to the ExcelFiles. It also enables the user to upload a new Excel-file to the service, or download the [template-excelfile](./Source/ConnectorService/Resources/ExcelConnectorWithCapabilities.xlsx). 
+
+All endpoints configured for this sample can be found in [ExcelHandlerEndpoints.cs](./Source/ConnectorService/API/ExcelHandlerEndpoints.cs).
+
+To easily get access to use/test these endpoints the projects uses `Swagger`. For production it is recommended to add security to this API.
+
 ## SuperOffice.ExcelQuoteConnector
 Contains the implementation of the QuoteConnector, using a locally stored Excel file as the data source. **This implementation is not intended for production use, but as a sample for how to implement a QuoteConnector.**
+
+## SuperOffice.EIS.TestConnector
+Contains the implementation of the ERPConnector, using a locally stored text file as the data source. **This implementation is not intended for production use, but as a sample for how to implement an ERPConnector.**
 
 ## Quickstart
 
@@ -72,22 +84,35 @@ Adjust port 7128 to be the port for the internally running application, and YOUR
 ### Appsettings.json
 
 ```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "SuperId": {
+    "Certificate": "16b7fb8c3f9ab06885a800c64e64c97c4ab5e98c"
+  },
   "Application": {
     "EnableHttpsEndpoints": true,
     "Host": "HOSTNAME",
     "ResourcesPath": "Resources"
   },
   "QuoteConnector": {
-    "ClientId": "73ed40c8...",
+    "ClientId": "73ed40c88d....",
     "PrivateKeyFile": "App_Data/Quote_PrivateKey.xml"
   },
   "ErpConnector": {
-    "ClientId": "ecf27a4...",
-    "PrivateKeyFile": "App_Data/PrivateKey.xml",
+    "ClientId": "ecf27a469b3....",
+    "PrivateKeyFile": "App_Data/ERP_PrivateKey.xml",
     "ConnectorAssemblies": [
       "SuperOffice.EIS.TestConnector.dll"
     ]
   }
+}
+
 ```
 
 The Service needs a clientId/Application identifier and the private certificate that belongs to the application. By default the certificate is located in "AppData/PrivateKey.xml", and the clientId can be found in appsettings.json.
@@ -110,7 +135,11 @@ The data provided by the connectors are all located in [Resources](./Resources).
 
 Editing these files will reflect the data seen inside of SuperOffice, and in SuperOffice Admin it is neccessary to point to the correct file to get the data. It is also possible to upload your own files, through the [Minimalistic API](#Minimalistic_API), or download one of the existing 'templates' above and re-upload new versions.
 
-In a real-world scenario, the data would be fetched from an external system, and not stored in the project itself!
+In a real-world scenario, the data would be fetched from an external system, and not stored in the project itself.
+
+## Questions and feedback
+
+If you have any questions or feedback, please create an issue in this repository.
 
 <!-- Reference links -->
 [0]: https://docs.superoffice.com/en/api/netserver/plugins/quote-connectors/online-quote-connectors/index.html
