@@ -6,7 +6,7 @@ using System.Reflection;
 using SuperOffice.CRM;
 using SuperOffice.CRM.Globalization;
 
-namespace SuperOffice.ErpSync.TestConnector
+namespace ErpConnector
 {
     [ErpConnector(ConnectorName)]
     public class Connector : IErpConnector
@@ -28,7 +28,7 @@ namespace SuperOffice.ErpSync.TestConnector
                 var ri = new ResponseType
                 {
                     State = ResponseState.Error,
-                    ErrorCode = ConnectorWS.ResponseErrorCodes.UNKNOWN_CONNECTION_ID
+                    ErrorCode = SuperOffice.ErpSync.ConnectorWS.ResponseErrorCodes.UNKNOWN_CONNECTION_ID
                 };
                 return ri;
             }
@@ -44,7 +44,7 @@ namespace SuperOffice.ErpSync.TestConnector
         {
             var temp = AppContext.BaseDirectory;
             _fileBaseDir = Path.Combine(AppContext.BaseDirectory, "Resources");
-            _connectionsFile = Path.Combine(_fileBaseDir, "EIS_Connections.txt");
+            _connectionsFile = Path.Combine(_fileBaseDir, "ERP_Connections.txt");
         }
 
         private Connection GetConnection(Guid connectionId)
@@ -86,7 +86,7 @@ namespace SuperOffice.ErpSync.TestConnector
             fields.Add(new FieldMetadataInfo()
             {
                 Access = FieldAccessInfo.Mandatory,
-                DefaultValue = "C:\\Temp\\EIS\\Client.xlsm",
+                DefaultValue = "ErpClient.xlsm",
                 DisplayDescription = "NO:\"Filnavn for excel-dokumentet (hele stien)\";US:\"Filename for excel document (full path)\"",
                 DisplayName = "NO:\"Filnavn\";US:\"File Name\"",
                 FieldKey = "Filename",

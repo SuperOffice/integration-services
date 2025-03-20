@@ -35,7 +35,7 @@ app
     .EnableWsdlGet();
 
 ///Fix to load the SuperOffice.EIS.TestConnector.dll, as it needs to be a loaded assembly before the ERPConnectorWS.cs tries to use it.
-Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, "SuperOffice.EIS.TestConnector.dll"));
+Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, "ErpConnector.dll"));
 
 app.AddExcelHandlerEndpoints();
 

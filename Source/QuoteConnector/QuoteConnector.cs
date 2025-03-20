@@ -170,16 +170,12 @@ namespace SuperOffice.Connectors
         }
     }
 
-
-
-
-
     [QuoteConnector(Name)]
-    public class ExcelQuoteConnector : QuoteConnectorBase
+    public class QuoteConnector : QuoteConnectorBase
     {
         public const string Name = "ExcelQuoteConnector";
 
-        public ExcelQuoteConnector()
+        public QuoteConnector()
         {
             ProductProvider = new InMemoryProductProvider();
         }

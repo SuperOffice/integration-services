@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using SuperOffice.CRM;
 using SuperOffice.CRM.Globalization;
+using SuperOffice.ErpSync;
 using SuperOffice.ErpSync.ConnectorWS;
 
-namespace SuperOffice.ErpSync.TestConnector
+namespace ErpConnector
 {
     internal class Connection
     {

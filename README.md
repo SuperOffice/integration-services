@@ -34,7 +34,7 @@ This workaround is necessary to support both onsite and online versions of Super
 
 Service-endpoint: [https://HOSTNAME/Services/ErpConnector.svc](./Source/ConnectorService/Services/ERPConnectorWS.cs)
 
-This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the ErpSyncConnector, and is responsible for handling the incoming requests and returning the responses.
+This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the ErpConnector, and is responsible for handling the incoming requests and returning the responses.
 
 ### Minimalistic API
 
@@ -44,10 +44,10 @@ All endpoints configured for this sample can be found in [ExcelHandlerEndpoints.
 
 To easily get access to use/test these endpoints the projects uses `Swagger`. For production it is recommended to add security to this API.
 
-## SuperOffice.ExcelQuoteConnector
+## QuoteConnector
 Contains the implementation of the QuoteConnector, using a locally stored Excel file as the data source. **This implementation is not intended for production use, but as a sample for how to implement a QuoteConnector.**
 
-## SuperOffice.EIS.TestConnector
+## ERPConnector
 Contains the implementation of the ERPConnector, using a locally stored text file as the data source. **This implementation is not intended for production use, but as a sample for how to implement an ERPConnector.**
 
 ## Quickstart
@@ -55,13 +55,13 @@ Contains the implementation of the ERPConnector, using a locally stored text fil
 To set up a new QuoteConnector the following steps needs to be completed:
 
 1. [Create a quote connector][0]
-2. [Register an ERPSyncConector app][1]
+2. [Register an ERPConnector app][1]
 3. [Register an QuoteConnector app][1]
 4. [Configure the application with service endpoints][2]
 5. [Host the application](#Hosting)
 5. [Create a new Quote Connector in SuperOffice Admin][3]
 
-Note: The ERPSyncConnector and QuoteConnector apps need different application_id, so you cannot share 1 application for both connectors.
+Note: The ERPConnector and QuoteConnector apps need different application_id, so you cannot share 1 application for both connectors.
 
 ### Hosting
 
@@ -108,7 +108,7 @@ Adjust port 7128 to be the port for the internally running application, and YOUR
     "ClientId": "ecf27a469b3....",
     "PrivateKeyFile": "App_Data/ERP_PrivateKey.xml",
     "ConnectorAssemblies": [
-      "SuperOffice.EIS.TestConnector.dll"
+      "ErpConnector.dll"
     ]
   }
 }
@@ -129,8 +129,8 @@ The reasoning for setting `Application.Host` specifically can be seen in [this d
 
 The data provided by the connectors are all located in [Resources](./Resources). 
 
-* EIS_Connections.txt - Used by SuperOffice.EIS.TestConnector to store information about a connection that has been created. 
-* ErpClient.xslm - Used by the SuperOffice.EIS.TestConnector to provide data back to SuperOffice.
+* ERP_Connections.txt - Used by ErpConnector to store information about a connection that has been created. 
+* ErpClient.xslm - Used by the ErpConnector to provide data back to SuperOffice.
 * ExcelConnectorWithCapabilities.xlsx - Used by the ExcelQuoteConnector to provide data back to SuperOffice.
 
 Editing these files will reflect the data seen inside of SuperOffice, and in SuperOffice Admin it is neccessary to point to the correct file to get the data. It is also possible to upload your own files, through the [Minimalistic API](#Minimalistic_API), or download one of the existing 'templates' above and re-upload new versions.

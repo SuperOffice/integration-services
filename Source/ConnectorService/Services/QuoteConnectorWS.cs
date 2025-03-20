@@ -16,7 +16,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace ConnectorService.Services
 {
-    public class QuoteConnectorWS : OnlineQuoteConnector<ExcelQuoteConnector>, IIntegrationServiceConnectorAuth
+    public class QuoteConnectorWS : OnlineQuoteConnector<QuoteConnector>, IIntegrationServiceConnectorAuth
     {
         public const string Endpoint = "QuoteConnectorWS.svc";
         private readonly SuperIdOptions _superIdOptions;
@@ -101,7 +101,7 @@ namespace ConnectorService.Services
         /// <typeparam name="TRequest">The type of the request.</typeparam>
         /// <param name="request">The request containing connection configuration fields.</param>
         /// <returns>The inner typed quote connector.</returns>
-        protected override ExcelQuoteConnector GetInnerTypedQuoteConnector<TRequest>(TRequest request)
+        protected override QuoteConnector GetInnerTypedQuoteConnector<TRequest>(TRequest request)
         {
             // Check if the request comes from Online by inspecting the first property of ConnectionConfigFields
             if (request.ConnectionConfigFields.Keys.FirstOrDefault() == "ApplicationId")

@@ -11,8 +11,8 @@
 	<DockerfileRunArguments>-v connectorvolme:/app/Uploads</DockerfileRunArguments>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SuperOffice.ExcelQuoteConnector\SuperOffice.ExcelQuoteConnector.csproj" />
-    <ProjectReference Include="..\SuperOffice.EIS.TestConnector\SuperOffice.EIS.TestConnector.csproj" />
+    <ProjectReference Include="..\QuoteConnector\QuoteConnector.csproj" />
+    <ProjectReference Include="..\ErpConnector\ErpConnector.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CoreWCF.Http" />

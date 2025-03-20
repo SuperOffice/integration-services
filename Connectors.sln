@@ -5,9 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectorService", "Source\ConnectorService\ConnectorService.csproj", "{C27C85E5-9266-40F9-ADE5-F89F05235EAE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperOffice.ExcelQuoteConnector", "Source\SuperOffice.ExcelQuoteConnector\SuperOffice.ExcelQuoteConnector.csproj", "{5F99D162-969D-4D43-80B4-EC6F68058CED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuoteConnector", "Source\QuoteConnector\QuoteConnector.csproj", "{5F99D162-969D-4D43-80B4-EC6F68058CED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperOffice.EIS.TestConnector", "Source\SuperOffice.EIS.TestConnector\SuperOffice.EIS.TestConnector.csproj", "{7FCECF31-1360-413D-9195-B474E4F77EBB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErpConnector", "Source\ErpConnector\ErpConnector.csproj", "{7FCECF31-1360-413D-9195-B474E4F77EBB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{9C40650E-B823-4D51-9180-B918AE68822F}"
 	ProjectSection(SolutionItems) = preProject
