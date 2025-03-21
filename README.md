@@ -20,19 +20,19 @@ For production use, you need to acquire a license from EPPLUS (or make sure you 
 
 ### QuoteConnectorWS
 
-Service-endpoint: [https://HOSTNAME/Services/QuoteConnector.svc](./Source/ConnectorService/Services/QuoteConnector.cs)
+Service-endpoint: [https://HOSTNAME/Services/QuoteConnectorWS.svc](./Source/ConnectorService/Services/QuoteConnectorWS.cs)
 
 This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the QuoteConnector, and is responsible for handling the incoming requests and returning the responses.
 
 Note: 
 The service requires a special snippet to check if the incoming request comes from SuperOffice Online. The snippet can be found in RefactorConnectionConfigFields() in [QuoteConnectorWS.cs](./Source/ConnectorService/Services/QuoteConnectorWS.cs).
-This snippet is not mandatory for all connectors, but the [implementation](./Source/SuperOffice.ExcelQuoteConnector/ExcelQuoteConnector.cs#L255) for the connector expects the fileName to be in the first position of the `connectionConfigFields` dictionary. 
-This filename is used to load data from Excel in [ReadInData()](./Source/SuperOffice.ExcelQuoteConnector/ExcelQuoteConnector.cs#L878)
+This snippet is not mandatory for all connectors, but the [implementation](./Source/QuoteConnector/QuoteConnector.cs#L255) for the connector expects the fileName to be in the first position of the `connectionConfigFields` dictionary. 
+This filename is used to load data from Excel in [ReadInData()](./Source/QuoteConnector/QuoteConnector.cs#L878)
 This workaround is necessary to support both onsite and online versions of SuperOffice.
 
 ### ERPConnectorWS
 
-Service-endpoint: [https://HOSTNAME/Services/ErpConnector.svc](./Source/ConnectorService/Services/ERPConnectorWS.cs)
+Service-endpoint: [https://HOSTNAME/Services/ErpConnectorWS.svc](./Source/ConnectorService/Services/ERPConnectorWS.cs)
 
 This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the ErpConnector, and is responsible for handling the incoming requests and returning the responses.
 
@@ -40,7 +40,7 @@ This is the WCF service that is exposed to SuperOffice. It is a simple wrapper a
 
 The ConnectorService project contains a minimalistic API for handling reading from and writing to the ExcelFiles. It also enables the user to upload a new Excel-file to the service, or download the [template-excelfile](./Source/ConnectorService/Resources/ExcelConnectorWithCapabilities.xlsx). 
 
-All endpoints configured for this sample can be found in [ExcelHandlerEndpoints.cs](./Source/ConnectorService/API/ExcelHandlerEndpoints.cs).
+All endpoints configured for this sample can be found in [ExcelHandlerEndpoints.cs](./Source/ConnectorService/Api/ExcelHandlerEndpoints.cs).
 
 To easily get access to use/test these endpoints the projects uses `Swagger`. For production it is recommended to add security to this API.
 
