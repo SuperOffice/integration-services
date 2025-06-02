@@ -14,8 +14,14 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using System.Reflection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpOverrides;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// If using KeyVault to store ClientId and PrivateKey
+var keyVaultUrl = builder.Configuration["KeyVault:Url"];
+builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
 builder.Services
     .AddConfig(builder.Configuration)

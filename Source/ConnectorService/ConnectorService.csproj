@@ -15,6 +15,7 @@
     <ProjectReference Include="..\ErpConnector\ErpConnector.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
     <PackageReference Include="CoreWCF.Http" />
     <PackageReference Include="CoreWCF.Primitives" />
     <PackageReference Include="SuperOffice.Online.Tokens" />

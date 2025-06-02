@@ -20,23 +20,23 @@ namespace ConnectorService.Services
     {
         public const string Endpoint = "QuoteConnectorWS.svc";
         private readonly SuperIdOptions _superIdOptions;
-        private readonly QuoteConnectorOptions _quoteConnectorOptions;
+        private readonly ConnectorServiceOptions _connectorServiceOptions;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
         private readonly PartnerTokenIssuer _partnerTokenIssuer;
 
         public QuoteConnectorWS(
             IOptions<SuperIdOptions> superIdOptions,
-            IOptions<QuoteConnectorOptions> quoteConnectorOptions,
+            IOptions<ConnectorServiceOptions> connectorServiceOptions,
             ISuperOfficeTokenValidator superOfficeTokenValidator = null,
             IPartnerTokenIssuer partnerTokenIssuer = null
             ) : base
             (
-                quoteConnectorOptions.Value.ClientId,
-                GetPrivateKey(quoteConnectorOptions.Value.PrivateKeyFile)
+                connectorServiceOptions.Value.ClientId,
+                GetPrivateKey(connectorServiceOptions.Value.PrivateKeyFile)
             )
             {
                 _superIdOptions = superIdOptions.Value;
-                _quoteConnectorOptions = quoteConnectorOptions.Value;
+                _connectorServiceOptions = connectorServiceOptions.Value;
                 _superOfficeTokenValidator = superOfficeTokenValidator
                 ?? new SuperOfficeTokenValidator(new LocalStoreSuperIdCertificateResolver(thumbbprint: _superIdOptions.Certificate)); // This certificate should be loaded from online's discovery document.
                 _partnerTokenIssuer = new PartnerTokenIssuer(new PartnerCertificateResolver(() => PrivateKey));
@@ -50,7 +50,7 @@ namespace ConnectorService.Services
         /// <returns>An AuthenticationResponse indicating the result of the authentication process.</returns>
         AuthenticationResponse IIntegrationServiceConnectorAuth.Authenticate(AuthenticationRequest request)
         {
-            var applicationIdentifier = _quoteConnectorOptions.ClientId;
+            var applicationIdentifier = _connectorServiceOptions.ClientId;
 
             try
             {

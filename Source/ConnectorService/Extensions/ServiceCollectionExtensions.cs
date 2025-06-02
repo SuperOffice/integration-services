@@ -15,8 +15,17 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddOptions<ApplicationOptions>(config, ApplicationOptions.Application)
                 .AddOptions<SuperIdOptions>(config, SuperIdOptions.SuperId)
-                .AddOptions<QuoteConnectorOptions>(config, QuoteConnectorOptions.QuoteConnector)
-                .AddOptions<ErpConnectorOptions>(config, ErpConnectorOptions.ErpConnector);
+                .AddOptions<ConnectorServiceOptions>(config, ConnectorServiceOptions.ConnectorService);
+
+            // Override sensitive values with Key Vault secrets
+            services.PostConfigure<ConnectorServiceOptions>(options =>
+            {
+                options.ClientId = config[$"{ConnectorServiceOptions.ConnectorService}:ClientId"]
+                                   ?? options.ClientId;  // Preserve existing value if secret is missing
+
+                options.PrivateKeyFile = config[$"{ConnectorServiceOptions.ConnectorService}:PrivateKeyFile"]
+                                         ?? options.PrivateKeyFile;
+            });
 
             return services;
         }

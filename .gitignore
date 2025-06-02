@@ -366,3 +366,7 @@ FodyWeavers.xsd
 /Source/ConnectorService/.config/dotnet-tools.json
 /Source/ConnectorService/Properties/ServiceDependencies/dx-app-connector-service - Zip Deploy/profile.arm.json
 /Source/ConnectorService/Properties/ServiceDependencies/dx-connector-service/profile.arm.json
+/Source/ConnectorService/Properties/ServiceDependencies/dx-app-connector-service - Zip Deploy
+/Source/ConnectorService/Properties/ServiceDependencies/dx-app-connector-service - Zip Deploy/secrets1.arm.json
+/Source/ConnectorService/Properties/serviceDependencies.dx-app-connector-service - Zip Deploy.json
+/Source/ConnectorService/Properties/serviceDependencies.json

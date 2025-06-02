@@ -27,14 +27,14 @@ namespace ConnectorService.Services
     {
         public const string Endpoint = "ErpConnectorWS.svc";
         readonly HashSet<Assembly> _parsedAssemblies = new();
-        private readonly ErpConnectorOptions _erpConnectorOptions;
+        private readonly ConnectorServiceOptions _connectorServiceOptions;
         private readonly SuperIdOptions _superIdOptions;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
         private readonly IPartnerTokenIssuer _partnerTokenIssuer;
 
         public ErpConnectorWS(
-            IOptions<ErpConnectorOptions> erpConnectorOptions,
+            IOptions<ConnectorServiceOptions> connectorServiceOptions,
             IOptions<ApplicationOptions> applicationOptions,
             IOptions<SuperIdOptions> superIdOptions,
             IWebHostEnvironment webHostEnvironment,
@@ -42,7 +42,7 @@ namespace ConnectorService.Services
             IPartnerTokenIssuer partnerTokenIssuer = null
         )
         {
-            _erpConnectorOptions = erpConnectorOptions.Value;
+            _connectorServiceOptions = connectorServiceOptions.Value;
             _superIdOptions = superIdOptions.Value;
             _webHostEnvironment = webHostEnvironment;
             _superOfficeTokenValidator = superOfficeTokenValidator
@@ -52,7 +52,7 @@ namespace ConnectorService.Services
 
         AuthenticationResponse IIntegrationServiceConnectorAuth.Authenticate(AuthenticationRequest request)
         {
-            var applicationIdentifier = _erpConnectorOptions.ClientId;
+            var applicationIdentifier = _connectorServiceOptions.ClientId;
 
             try
             {
@@ -85,7 +85,7 @@ namespace ConnectorService.Services
 
         public string GetPrivateKey()
         {
-            var fileName = _erpConnectorOptions.PrivateKeyFile;
+            var fileName = _connectorServiceOptions.PrivateKeyFile;
             if (!Path.IsPathRooted(fileName))
                 fileName = Path.Combine(_webHostEnvironment.ContentRootPath, path2: fileName);
             return File.ReadAllText(fileName);
@@ -131,7 +131,7 @@ namespace ConnectorService.Services
         {
             // Parse assemblies and prime the NetServer class factory with IPlugin classes
             ParseAssemblies();
-            var assemblyNames = _erpConnectorOptions.ConnectorAssemblies;
+            var assemblyNames = _connectorServiceOptions.ConnectorAssemblies;
             // EisPluginLoader will parse assemblies and find plugins.
 
             var plugin = EisPluginLoader.Instance.GetConnector(OperationContext.Current.IncomingMessageHeaders.To, assemblyNames);
