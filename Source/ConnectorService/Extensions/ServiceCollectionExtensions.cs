@@ -3,7 +3,6 @@ using ConnectorService.Services;
 using ConnectorService.Utils;
 using CoreWCF.Configuration;
 using CoreWCF.Description;
-using static SuperOffice.Configuration.ConfigFile;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

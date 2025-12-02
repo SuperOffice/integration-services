@@ -1,17 +1,12 @@
 ﻿using CoreWCF.Channels;
 using CoreWCF;
-using System.Runtime;
 using CoreWCF.Configuration;
 using CoreWCF.Description;
 using ConnectorService.Services;
 using SuperOffice.Online.IntegrationService.Contract;
 using SuperOffice.SuperID.Contracts;
 using Microsoft.Extensions.Options;
-using ConnectorService.Models;
 using SuperOffice.ErpSync;
-using System.Web.Services.Description;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-using Microsoft.Identity.Client;
 
 namespace ConnectorService.Extensions
 {

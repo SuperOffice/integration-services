@@ -1,9 +1,4 @@
-﻿using ConnectorService.Models;
-using CoreWCF.Configuration;
-using Microsoft.Extensions.Options;
-using static SuperOffice.Configuration.ConfigFile;
-
-namespace ConnectorService.Extensions
+﻿namespace ConnectorService.Extensions
 {
     public static class OpenApiExtensions
     {
@@ -23,17 +18,15 @@ namespace ConnectorService.Extensions
 
         internal static WebApplication AddOpenApiUi(this WebApplication app)
         {
-            //if (app.Environment.IsDevelopment())
-            //{
-                app.UseOpenApi();
-                app.UseSwaggerUi(config =>
-                {
-                    config.DocumentTitle = "ConnectorServiceAPI";
-                    config.Path = "/swagger";
-                    config.DocumentPath = "/swagger/{documentName}/swagger.json";
-                    config.DocExpansion = "list";
-                });
-            //}
+            app.UseOpenApi();
+            app.UseSwaggerUi(config =>
+            {
+                config.DocumentTitle = "ConnectorServiceAPI";
+                config.Path = "/swagger";
+                config.DocumentPath = "/swagger/{documentName}/swagger.json";
+                config.DocExpansion = "list";
+                config.CustomJavaScriptPath = "/custom.js"; //Fetches the custom .js-file from the builtin endpoint, since we dont have access to the swagger-files directly..
+            });
             return app;
         }
     }

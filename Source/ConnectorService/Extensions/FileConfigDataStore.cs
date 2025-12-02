@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using ConnectorService.Models;
-using Microsoft.Extensions.Options;
-using SuperOffice.ErpSync.ConnectorWS;
+﻿using SuperOffice.ErpSync.ConnectorWS;
 using SuperOffice.CRM;
 
 namespace ConnectorService.Extensions

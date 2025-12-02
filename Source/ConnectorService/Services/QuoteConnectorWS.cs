@@ -1,7 +1,6 @@
 ﻿
 
 using ConnectorService.Models;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SuperOffice.Connectors;
@@ -32,7 +31,8 @@ namespace ConnectorService.Services
             ) : base
             (
                 connectorServiceOptions.Value.ClientId,
-                GetPrivateKey(connectorServiceOptions.Value.PrivateKeyFile)
+                //GetPrivateKey(connectorServiceOptions.Value.PrivateKeyFile)
+                connectorServiceOptions.Value.PrivateKeyFile
             )
             {
                 _superIdOptions = superIdOptions.Value;

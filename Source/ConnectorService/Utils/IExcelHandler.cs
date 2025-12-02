@@ -1,6 +1,4 @@
-﻿using ConnectorService.Models.Excel;
-
-namespace ConnectorService.Utils
+﻿namespace ConnectorService.Utils
 {
     public interface IExcelHandler
     {
