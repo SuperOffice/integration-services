@@ -2,6 +2,15 @@
 
 This project is created as a sample for how to set up a QuoteConnector and ERPConnector.
 
+## Prerequisites
+
+The solution uses the XML-based solution format (`Connectors.slnx`), which requires:
+
+* Visual Studio 2022 version 17.14 or newer (or another IDE with `.slnx` support)
+* .NET SDK 9.0.200 or newer when building from the command line
+
+The projects themselves still target .NET 8 (`net8.0`) and .NET Standard 2.0.
+
 ## Architecture
 
 An overview of the architecture can be seen in [Architecture.dsl](./Architecture.dsl).

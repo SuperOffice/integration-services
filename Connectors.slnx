@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Documentation/">
+    <File Path="Architecture.dsl" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path="CHANGELOG.md" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Dockerfile" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Source/ConnectorService/ConnectorService.csproj" />
+  <Project Path="Source/ErpConnector/ErpConnector.csproj" />
+  <Project Path="Source/QuoteConnector/QuoteConnector.csproj" />
+</Solution>
