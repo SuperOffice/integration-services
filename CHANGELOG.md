@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Migrated the solution from `Connectors.sln` to `Connectors.slnx`. Requires Visual Studio 17.14+ or .NET SDK 9.0.200+.
+- Added `nuget.config` that maps all packages to nuget.org (package source mapping).
 - Updated CoreWCF.Http and CoreWCF.Primitives from 1.6.0 to 1.9.1.
 - Updated Microsoft.IdentityModel.Tokens and System.IdentityModel.Tokens.Jwt from 6.36.0 to 8.19.1 (required by CoreWCF 1.9.1).
 - Updated System.ServiceModel.Primitives from 4.10.3 to 8.1.2.

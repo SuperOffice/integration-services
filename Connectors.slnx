@@ -8,6 +8,7 @@
     <File Path="CHANGELOG.md" />
     <File Path=".gitignore" />
     <File Path="Directory.Packages.props" />
+    <File Path="nuget.config" />
     <File Path="Dockerfile" />
     <File Path="README.md" />
   </Folder>
