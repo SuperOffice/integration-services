@@ -3,38 +3,23 @@ using ConnectorService.Models;
 using ConnectorService.Api;
 using System.Reflection;
 using Azure.Identity;
-using NSwag.Generation.Processors.Security;
-using NSwag;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // If using KeyVault to store ClientId, PrivateKey and ApiKey
 var keyVaultUri = builder.Configuration["VaultUri"];
-builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
+if (!string.IsNullOrWhiteSpace(keyVaultUri))
+{
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
+}
 
 builder.Services
     .AddConfig(builder.Configuration)
-.AddDependencyGroup();
+    .AddDependencyGroup()
+    .AddOpenApi();
 
 // This value needs to be injected into the ConfigurationManager, as it's used by our packages to validate the cerificate.
 System.Configuration.ConfigurationManager.AppSettings["SuperIdCertificate"] = "16b7fb8c3f9ab06885a800c64e64c97c4ab5e98c";
-
-builder.Services.AddOpenApiDocument(config =>
-{
-    // Define API Key Security Scheme
-    config.AddSecurity("ApiKey", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-    {
-        Type = OpenApiSecuritySchemeType.ApiKey,
-        Name = "X-Api-Key", // Header name
-        In = OpenApiSecurityApiKeyLocation.Header,
-        Description = "Enter your API key to authenticate."
-    });
-
-    config.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("ApiKey"));
-
-    config.OperationProcessors.Add(new DynamicFileListProcessor("Resources"));
-});
-
 
 var app = builder.Build();
 
@@ -51,8 +36,10 @@ app.AddExcelHandlerEndpoints();
 
 app.Use(async (context, next) =>
 {
-    // Allow unrestricted access to the root path
-    if ((context.Request.Path == "/") || (context.Request.Path.Value.Contains("custom.js")))
+    // WCF endpoints are authenticated with SuperOffice-signed tokens, not the API key
+    if ((context.Request.Path == "/")
+        || (context.Request.Path.Value.Contains("custom.js"))
+        || context.Request.Path.StartsWithSegments("/Services"))
     {
         await next();
         return;

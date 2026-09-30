@@ -1,4 +1,7 @@
-﻿namespace ConnectorService.Extensions
+﻿using NSwag;
+using NSwag.Generation.Processors.Security;
+
+namespace ConnectorService.Extensions
 {
     public static class OpenApiExtensions
     {
@@ -8,9 +11,19 @@
             services.AddEndpointsApiExplorer();
             services.AddOpenApiDocument(config =>
             {
-                config.DocumentName = "ConnectorServiceAPI";
                 config.Title = "ConnectorServiceAPI v1";
                 config.Version = "v1";
+
+                config.AddSecurity("ApiKey", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "X-Api-Key",
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    Description = "Enter your API key to authenticate."
+                });
+
+                config.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("ApiKey"));
+                config.OperationProcessors.Add(new DynamicFileListProcessor("Resources"));
             });
 
             return services;

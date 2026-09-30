@@ -12,21 +12,14 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY ["/Directory.Packages.props","/"]
-COPY ["./Resources", "/local-nuget-packages"]
-RUN dotnet nuget add source "/local-nuget-packages" --name LocalPackages
+COPY ["Directory.Packages.props", "nuget.config", "./"]
+COPY ["Source/ConnectorService/ConnectorService.csproj", "Source/ConnectorService/"]
+COPY ["Source/ErpConnector/ErpConnector.csproj", "Source/ErpConnector/"]
+COPY ["Source/QuoteConnector/QuoteConnector.csproj", "Source/QuoteConnector/"]
+RUN dotnet restore "Source/ConnectorService/ConnectorService.csproj"
 
-COPY ["Source/ConnectorService/ConnectorService.csproj", "ConnectorService/"]
-COPY ["Source/SuperOffice.EIS.TestConnector/SuperOffice.EIS.TestConnector.csproj", "SuperOffice.EIS.TestConnector/"]
-COPY ["Source/SuperOffice.ExcelQuoteConnector/SuperOffice.ExcelQuoteConnector.csproj", "SuperOffice.ExcelQuoteConnector/"]
-
-RUN dotnet restore "ConnectorService/ConnectorService.csproj"
-
-COPY ["Source/SuperOffice.ExcelQuoteConnector/ExcelConnectorWithCapabilities.xlsx", "SuperOffice.ExcelQuoteConnector/"]
-COPY ["Source/SuperOffice.EIS.TestConnector/ErpClient.xlsm", "SuperOffice.EIS.TestConnector/"]
-
-WORKDIR "/src/ConnectorService"
 COPY . .
+WORKDIR "/src/Source/ConnectorService"
 RUN dotnet build "ConnectorService.csproj" -c $BUILD_CONFIGURATION -o /app/build --no-restore
 
 # This stage is used to publish the service project to be copied to the final stage

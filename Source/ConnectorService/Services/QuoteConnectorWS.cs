@@ -22,10 +22,12 @@ namespace ConnectorService.Services
         private readonly ConnectorServiceOptions _connectorServiceOptions;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
         private readonly PartnerTokenIssuer _partnerTokenIssuer;
+        private readonly ILogger<QuoteConnectorWS> _logger;
 
         public QuoteConnectorWS(
             IOptions<SuperIdOptions> superIdOptions,
             IOptions<ConnectorServiceOptions> connectorServiceOptions,
+            ILogger<QuoteConnectorWS> logger,
             ISuperOfficeTokenValidator superOfficeTokenValidator = null,
             IPartnerTokenIssuer partnerTokenIssuer = null
             ) : base
@@ -35,6 +37,7 @@ namespace ConnectorService.Services
                 connectorServiceOptions.Value.PrivateKeyFile
             )
             {
+                _logger = logger;
                 _superIdOptions = superIdOptions.Value;
                 _connectorServiceOptions = connectorServiceOptions.Value;
                 _superOfficeTokenValidator = superOfficeTokenValidator
@@ -84,8 +87,9 @@ namespace ConnectorService.Services
                     SignedApplicationToken = _partnerTokenIssuer.SignPartnerToken(token: nonce)
                 };
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to validate authentication request");
                 return new AuthenticationResponse
                 {
                     Succeeded = false,

@@ -25,16 +25,19 @@ namespace ConnectorService.Services
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
         private readonly IPartnerTokenIssuer _partnerTokenIssuer;
+        private readonly ILogger<ErpConnectorWS> _logger;
 
         public ErpConnectorWS(
             IOptions<ConnectorServiceOptions> connectorServiceOptions,
             IOptions<ApplicationOptions> applicationOptions,
             IOptions<SuperIdOptions> superIdOptions,
             IWebHostEnvironment webHostEnvironment,
+            ILogger<ErpConnectorWS> logger,
             ISuperOfficeTokenValidator superOfficeTokenValidator = null,
             IPartnerTokenIssuer partnerTokenIssuer = null
         )
         {
+            _logger = logger;
             _connectorServiceOptions = connectorServiceOptions.Value;
             _superIdOptions = superIdOptions.Value;
             _webHostEnvironment = webHostEnvironment;
@@ -67,8 +70,9 @@ namespace ConnectorService.Services
                     SignedApplicationToken = _partnerTokenIssuer.SignPartnerToken(token.GetNonce())
                 };
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to validate authentication request");
                 return new AuthenticationResponse
                 {
                     Succeeded = false,

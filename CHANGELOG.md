@@ -19,6 +19,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Updated Microsoft.Extensions.DependencyInjection.Abstractions, System.Diagnostics.DiagnosticSource and System.Diagnostics.EventLog to their latest 8.0.x patches.
 - Enabled central transitive package pinning, and pinned Microsoft.IdentityModel.Protocols.OpenIdConnect to 8.19.1 so all IdentityModel packages resolve to the same version.
 
+### Fixed
+
+- The service no longer fails at startup with "API Explorer not registered in DI". The OpenAPI setup now lives only in `OpenApiExtensions.AddOpenApi()`.
+- Azure Key Vault is only added when `VaultUri` is set, so the service runs locally without a vault.
+- Fixed the Dockerfile, which referenced project folders that no longer exist. `Swagger/custom.js` is now included in the published output.
+- `ConnectorAssemblies` now points to `ErpConnector.dll`, and the default `Application:Host` is `localhost`.
+- Failed `Authenticate` calls in `ErpConnectorWS` and `QuoteConnectorWS` are now logged.
+- Requests to `/Services/*` that CoreWCF doesn't handle (for example http instead of https) now return 404 instead of a misleading `401 Invalid API Key.`
+- Updated the README configuration section to match the shared `ConnectorService` settings, Key Vault and user secrets.
+
 ### Security
 
 - Fixed 7 CoreWCF.Primitives advisories, including a critical SAML token authentication bypass (GHSA-xjr9-gg9q-jx3v).
