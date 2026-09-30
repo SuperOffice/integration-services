@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- GitHub Actions CI workflow that runs on pull requests and pushes to `main`. It builds `Connectors.slnx`, builds the Docker image, starts the container and checks that `/`, Swagger and both WSDL endpoints respond.
+
 ### Changed
 
 - Migrated the solution from `Connectors.sln` to `Connectors.slnx`. Requires Visual Studio 17.14+ or .NET SDK 9.0.200+.
