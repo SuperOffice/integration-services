@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # .slnx needs SDK 9.0.200+; the projects still target net8.0/netstandard2.0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - run: dotnet restore Connectors.slnx
+      - run: dotnet build Connectors.slnx -c Release --no-restore
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: docker build -t connectorservice:ci .
+
+      - name: Start container
+        run: docker run -d --name connectorservice -p 8080:8080 connectorservice:ci
+
+      - name: Check endpoints
+        run: |
+          for path in / /swagger/v1/swagger.json "/Services/ERPConnectorWS.svc?wsdl" "/Services/QuoteConnectorWS.svc?wsdl"; do
+            echo "GET $path"
+            curl -fsS -o /dev/null --retry 15 --retry-delay 2 --retry-all-errors "http://localhost:8080$path"
+          done
+
+      - name: Container logs
+        if: always()
+        run: docker logs connectorservice

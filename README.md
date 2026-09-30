@@ -64,13 +64,12 @@ Contains the implementation of the ERPConnector, using a locally stored text fil
 To set up a new QuoteConnector the following steps needs to be completed:
 
 1. [Create a quote connector][0]
-2. [Register an ERPConnector app][1]
-3. [Register an QuoteConnector app][1]
-4. [Configure the application with service endpoints][2]
-5. [Host the application](#Hosting)
+2. [Register an app][1] (shared by the ERPConnector and QuoteConnector)
+3. [Configure the application with service endpoints][2]
+4. [Host the application](#Hosting)
 5. [Create a new Quote Connector in SuperOffice Admin][3]
 
-Note: The ERPConnector and QuoteConnector apps need different application_id, so you cannot share 1 application for both connectors.
+Note: The ERPConnector and QuoteConnector share one application (`ConnectorService:ClientId`).
 
 ### Hosting
 
@@ -109,24 +108,36 @@ Adjust port 7128 to be the port for the internally running application, and YOUR
     "Host": "HOSTNAME",
     "ResourcesPath": "Resources"
   },
-  "QuoteConnector": {
-    "ClientId": "73ed40c88d....",
-    "PrivateKeyFile": "App_Data/Quote_PrivateKey.xml"
-  },
-  "ErpConnector": {
-    "ClientId": "ecf27a469b3....",
-    "PrivateKeyFile": "App_Data/ERP_PrivateKey.xml",
+  "ConnectorService": {
     "ConnectorAssemblies": [
       "ErpConnector.dll"
     ]
-  }
+  },
+  "VaultUri": ""
 }
-
 ```
 
-The Service needs a clientId/Application identifier and the private certificate that belongs to the application. By default the certificate is located in "AppData/PrivateKey.xml", and the clientId can be found in appsettings.json.
+In addition, the service needs these secrets, which are not stored in `appsettings.json`:
 
-Note that the ERPConnectod and QuoteConnector has different credentials.
+| Setting | Value |
+|---|---|
+| `ConnectorService:ClientId` | The application identifier (client_id) of your app. |
+| `ConnectorService:PrivateKeyFile` | The application's private key **as XML** (the `<RSAKeyValue>...</RSAKeyValue>` content itself, not a file path). |
+| `ConnectorService:ApiKey` | The key clients must send in the `X-Api-Key` header to use the Minimalistic API. |
+
+If `VaultUri` is set, the secrets are read from that Azure Key Vault using `DefaultAzureCredential`. Key Vault uses `--` as the section separator, so the secret names are `ConnectorService--ClientId`, `ConnectorService--PrivateKeyFile` and `ConnectorService--ApiKey`.
+
+If `VaultUri` is empty, Key Vault is skipped. When running locally you can then set the secrets with [user secrets][7]:
+
+```bash
+dotnet user-secrets set "ConnectorService:ClientId" "<client_id>" --project Source/ConnectorService
+dotnet user-secrets set "ConnectorService:PrivateKeyFile" "<RSAKeyValue>...</RSAKeyValue>" --project Source/ConnectorService
+dotnet user-secrets set "ConnectorService:ApiKey" "<api-key>" --project Source/ConnectorService
+```
+
+Environment variables work too, for example `ConnectorService__ApiKey`.
+
+Alternatively, add `ClientId`, `PrivateKeyFile` and `ApiKey` under `ConnectorService` in `appsettings.Development.json`. This file is gitignored, and `VaultUri` must be empty for its values to be used. The private key XML must be on a single line.
 
 If the service is hosted in Azure, the `Application.Host` should be set to the hostname of the Azure App Service. All of these settings can be found in Azure portal, and settings defined in the portal directly will override the settings defined in appsettings.json. Please refer to [Microsoft documentation][6] for how to configure your application.
 
@@ -136,7 +147,7 @@ The reasoning for setting `Application.Host` specifically can be seen in [this d
 
 ## Where are the data used by the Connectors?
 
-The data provided by the connectors are all located in [Resources](./Resources). 
+The data provided by the connectors are all located in [Resources](./Source/ConnectorService/Resources). 
 
 * ERP_Connections.txt - Used by ErpConnector to store information about a connection that has been created. 
 * ErpClient.xslm - Used by the ErpConnector to provide data back to SuperOffice.
@@ -158,3 +169,4 @@ If you have any questions or feedback, please create an issue in this repository
 [4]: https://docs.superoffice.com/en/api/netserver/plugins/quote-connectors/set-up.html#pluginresponseinfo-testconnection--dictionarystring-string-connectiondata-connectiondata-
 [5]: https://azure.microsoft.com/en-us/products/app-service
 [6]: https://learn.microsoft.com/en-us/azure/app-service/configure-common?tabs=portal
+[7]: https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets
