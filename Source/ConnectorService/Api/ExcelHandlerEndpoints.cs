@@ -1,4 +1,5 @@
-﻿using ConnectorService.Models;
+﻿using ConnectorService.Authentication;
+using ConnectorService.Models;
 using ConnectorService.Models.Excel;
 using ConnectorService.Utils;
 using Ical.Net.CalendarComponents;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation;
 using SuperOffice.Data;
 using SuperOffice.Util;
@@ -40,6 +42,7 @@ namespace ConnectorService.Api
             app.MapPut("/file/{fileName}", UpdateOrCreateFile).DisableAntiforgery();
             app.MapDelete("/file/{fileName}", DeleteFile);
             app.MapGet("/files", GetAllFiles);
+            app.MapGet("/signing-keys", GetSigningKeys);
         }
 
         public static IResult GetAllCapabilities([FromServices] IExcelHandler excelHandler, string fileName = _templateName)
@@ -156,6 +159,19 @@ namespace ConnectorService.Api
                 .Select(file => Path.GetFileName(file));
 
             return Results.Json(files);
+        }
+
+        private static async Task<IResult> GetSigningKeys([FromServices] SuperOfficeJwksTokenValidator tokenValidator)
+        {
+            var keys = await tokenValidator.GetSigningKeysAsync();
+
+            return Results.Json(keys.OfType<X509SecurityKey>().Select(key => new
+            {
+                key.KeyId,
+                key.Certificate.Subject,
+                key.Certificate.NotBefore,
+                key.Certificate.NotAfter
+            }));
         }
 
         private static IResult ValidateFilePath(string fileName, out string filePath)

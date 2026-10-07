@@ -18,7 +18,7 @@ builder.Services
     .AddDependencyGroup()
     .AddOpenApi();
 
-// This value needs to be injected into the ConfigurationManager, as it's used by our packages to validate the cerificate.
+// The quote connector base class builds a fallback validator from this setting and throws if it is missing; tokens are validated by SuperOfficeJwksTokenValidator.
 System.Configuration.ConfigurationManager.AppSettings["SuperIdCertificate"] = "16b7fb8c3f9ab06885a800c64e64c97c4ab5e98c";
 
 var app = builder.Build();

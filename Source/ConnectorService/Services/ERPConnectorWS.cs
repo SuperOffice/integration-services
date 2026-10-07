@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using ConnectorService.Authentication;
 using ConnectorService.Models;
 using Microsoft.Extensions.Options;
 using SuperOffice.CRM;
@@ -8,10 +9,6 @@ using SuperOffice.Factory;
 using SuperOffice.Online.Tokens;
 using SuperOffice.SuperID.Contracts;
 using SuperOffice.SuperID.Contracts.V1;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using CoreWCF;
 
 namespace ConnectorService.Services
@@ -21,73 +18,25 @@ namespace ConnectorService.Services
         public const string Endpoint = "ErpConnectorWS.svc";
         readonly HashSet<Assembly> _parsedAssemblies = new();
         private readonly ConnectorServiceOptions _connectorServiceOptions;
-        private readonly SuperIdOptions _superIdOptions;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
         private readonly IPartnerTokenIssuer _partnerTokenIssuer;
         private readonly ILogger<ErpConnectorWS> _logger;
 
         public ErpConnectorWS(
             IOptions<ConnectorServiceOptions> connectorServiceOptions,
-            IOptions<ApplicationOptions> applicationOptions,
-            IOptions<SuperIdOptions> superIdOptions,
-            IWebHostEnvironment webHostEnvironment,
             ILogger<ErpConnectorWS> logger,
-            ISuperOfficeTokenValidator superOfficeTokenValidator = null,
-            IPartnerTokenIssuer partnerTokenIssuer = null
+            ISuperOfficeTokenValidator superOfficeTokenValidator,
+            IPartnerTokenIssuer partnerTokenIssuer
         )
         {
             _logger = logger;
             _connectorServiceOptions = connectorServiceOptions.Value;
-            _superIdOptions = superIdOptions.Value;
-            _webHostEnvironment = webHostEnvironment;
-            _superOfficeTokenValidator = superOfficeTokenValidator
-                ?? new SuperOfficeTokenValidator(new LocalStoreSuperIdCertificateResolver(thumbbprint: _superIdOptions.Certificate)); // This certificate should be loaded from online's discovery document.
-            //_partnerTokenIssuer = partnerTokenIssuer ?? new PartnerTokenIssuer(new PartnerCertificateResolver(GetPrivateKey));
-            _partnerTokenIssuer = partnerTokenIssuer ?? new PartnerTokenIssuer(new PartnerCertificateResolver(_connectorServiceOptions.PrivateKeyFile));
+            _superOfficeTokenValidator = superOfficeTokenValidator;
+            _partnerTokenIssuer = partnerTokenIssuer;
         }
 
         AuthenticationResponse IIntegrationServiceConnectorAuth.Authenticate(AuthenticationRequest request)
-        {
-            var applicationIdentifier = _connectorServiceOptions.ClientId;
-
-            try
-            {
-                var token = ValidateSuperOfficeSignedToken(request.SignedToken);
-
-                if (!string.Equals("spn:" + applicationIdentifier, token.FindFirst("aud").Value, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return new AuthenticationResponse
-                    {
-                        Succeeded = false,
-                        Reason = "Wrong audience, missmatch on application identifier"
-                    };
-                }
-
-                return new AuthenticationResponse
-                {
-                    Succeeded = true,
-                    SignedApplicationToken = _partnerTokenIssuer.SignPartnerToken(token.GetNonce())
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to validate authentication request");
-                return new AuthenticationResponse
-                {
-                    Succeeded = false,
-                    Reason = "Failed to validate authentication request"
-                };
-            }
-        }
-
-        public string GetPrivateKey()
-        {
-            var fileName = _connectorServiceOptions.PrivateKeyFile;
-            if (!Path.IsPathRooted(fileName))
-                fileName = Path.Combine(_webHostEnvironment.ContentRootPath, path2: fileName);
-            return File.ReadAllText(fileName);
-        }
+            => IntegrationServiceAuthentication.Authenticate(request, _superOfficeTokenValidator, _connectorServiceOptions.ClientId, _partnerTokenIssuer, _logger);
 
         public FieldMetadataInfoArrayPluginResponseWS WSGetConfigData()
         {
@@ -407,27 +356,6 @@ namespace ConnectorService.Services
             {
                 return ResponseHelper.CreateWSResponse<ActorArrayPluginResponseWS>(crash);
             }
-        }
-
-        private ClaimsIdentity ValidateSuperOfficeSignedToken(string token)
-        {
-            string ValidIssuer = "SuperOffice AS";
-
-            var certificatePath = "App_Data/SuperOfficeFederatedLogin.crt";
-
-            if (string.IsNullOrEmpty(certificatePath) || !File.Exists(certificatePath))
-            {
-                throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
-            }
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenValidationParameters = new TokenValidationParameters();
-            tokenValidationParameters.ValidateAudience = false;
-            tokenValidationParameters.ValidIssuer = ValidIssuer;
-            tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(certificatePath));
-
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-            return principal.Identities.OfType<ClaimsIdentity>().FirstOrDefault();
         }
     }
 }
