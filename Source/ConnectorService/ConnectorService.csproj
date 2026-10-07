@@ -19,6 +19,7 @@
     <PackageReference Include="CoreWCF.Http" />
     <PackageReference Include="CoreWCF.Primitives" />
     <PackageReference Include="SuperOffice.Online.Tokens" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
     <PackageReference Include="System.Diagnostics.EventLog" />
 	<PackageReference Include="System.Diagnostics.DiagnosticSource" />
 	<PackageReference Include="System.Text.Encoding.CodePages" />
@@ -45,9 +46,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="App_Data\ERP_PrivateKey.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="App_Data\SuperOfficeFederatedLogin.crt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\EIS_Connections.txt">

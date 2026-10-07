@@ -1,8 +1,11 @@
-﻿using ConnectorService.Models;
+﻿using ConnectorService.Authentication;
+using ConnectorService.Models;
 using ConnectorService.Services;
 using ConnectorService.Utils;
 using CoreWCF.Configuration;
 using CoreWCF.Description;
+using Microsoft.Extensions.Options;
+using SuperOffice.Online.Tokens;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -13,7 +16,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services
                 .AddOptions<ApplicationOptions>(config, ApplicationOptions.Application)
-                .AddOptions<SuperIdOptions>(config, SuperIdOptions.SuperId)
                 .AddOptions<ConnectorServiceOptions>(config, ConnectorServiceOptions.ConnectorService);
 
             // Override sensitive values with Key Vault secrets
@@ -35,6 +37,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddTransient<QuoteConnectorWS>()
                 .AddTransient<ErpConnectorWS>()
+                .AddSingleton<SuperOfficeJwksTokenValidator>()
+                .AddSingleton<ISuperOfficeTokenValidator>(sp => sp.GetRequiredService<SuperOfficeJwksTokenValidator>())
+                .AddSingleton<IPartnerTokenIssuer>(sp => new PartnerTokenIssuer(new PartnerCertificateResolver(
+                    sp.GetRequiredService<IOptions<ConnectorServiceOptions>>().Value.PrivateKeyFile)))
+                .AddHostedService<SigningKeysWarmupService>()
                 .AddCoreWcfDepedency()
                 .AddSingleton<IExcelHandler, ExcelHandler>();
 

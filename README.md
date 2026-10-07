@@ -17,13 +17,13 @@ An overview of the architecture can be seen in [Architecture.dsl](./Architecture
 To view the diagram, you can use the free tool [structurizr](https://structurizr.com/dsl), or you can use vscode with the [c4-dsl-extension](https://marketplace.visualstudio.com/items?itemName=systemticks.c4-dsl-extension).
 
 ## ConnectorService
-This project is the wrapper which exposes the services for the QuoteConnector.
+This project is the wrapper which exposes the services for the QuoteConnector and ERPConnector.
 
 Since .net Core does not natively support WCF, this projects makes use of the community-driven project [coreWCF](https://github.com/CoreWCF/CoreWCF) to add this support. CoreWCF has been picked up by microsoft and is now part of their [support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/corewcf), but SuperOffice does not have anything to do with this support directly.
 
 ### EPPLUS
 
-The service uses the [EPPLUS](https://www.epplussoftware.com/) for reading from and writing to excelfiles. This is a licensed product, and since this project is a sample (and not to be used in production), the license is set to be [NonCommercial](./Source/ConnectorService/Utils/ExcelHandler.cs#L29).
+The service uses the [EPPLUS](https://www.epplussoftware.com/) for reading from and writing to excelfiles. This is a licensed product, and since this project is a sample (and not to be used in production), the license is set to be [NonCommercial](./Source/ConnectorService/Utils/ExcelHandler.cs#L17).
 
 For production use, you need to acquire a license from EPPLUS (or make sure you adhere to their licensing terms).
 
@@ -35,8 +35,8 @@ This is the WCF service that is exposed to SuperOffice. It is a simple wrapper a
 
 Note: 
 The service requires a special snippet to check if the incoming request comes from SuperOffice Online. The snippet can be found in RefactorConnectionConfigFields() in [QuoteConnectorWS.cs](./Source/ConnectorService/Services/QuoteConnectorWS.cs).
-This snippet is not mandatory for all connectors, but the [implementation](./Source/QuoteConnector/QuoteConnector.cs#L255) for the connector expects the fileName to be in the first position of the `connectionConfigFields` dictionary. 
-This filename is used to load data from Excel in [ReadInData()](./Source/QuoteConnector/QuoteConnector.cs#L878)
+This snippet is not mandatory for all connectors, but the [implementation](./Source/QuoteConnector/QuoteConnector.cs#L251) for the connector expects the fileName to be in the first position of the `connectionConfigFields` dictionary. 
+This filename is used to load data from Excel in [ReadInData()](./Source/QuoteConnector/QuoteConnector.cs#L874)
 This workaround is necessary to support both onsite and online versions of SuperOffice.
 
 ### ERPConnectorWS
@@ -45,13 +45,24 @@ Service-endpoint: [https://HOSTNAME/Services/ErpConnectorWS.svc](./Source/Connec
 
 This is the WCF service that is exposed to SuperOffice. It is a simple wrapper around the ErpConnector, and is responsible for handling the incoming requests and returning the responses.
 
+### Authentication
+
+When SuperOffice Online calls `Authenticate` on QuoteConnectorWS or ERPConnectorWS, it sends a signed token. The service:
+
+1. Validates the token with [SuperOfficeJwksTokenValidator](./Source/ConnectorService/Authentication/SuperOfficeJwksTokenValidator.cs), using the public signing keys SuperOffice publishes for each environment (`sod`, `qaonline` and `online`). One deployment can therefore serve all three environments without any certificate configuration. The keys are loaded at startup and refreshed automatically.
+2. Signs the token's nonce with the application's private key (`ConnectorService:PrivateKeyFile`) and returns it, which proves to SuperOffice that the response comes from your application.
+
+Both services share this logic in [IntegrationServiceAuthentication.cs](./Source/ConnectorService/Authentication/IntegrationServiceAuthentication.cs). The service needs outbound HTTPS access to `sod.superoffice.com`, `qaonline.superoffice.com` and `online.superoffice.com` to fetch the keys.
+
 ### Minimalistic API
 
 The ConnectorService project contains a minimalistic API for handling reading from and writing to the ExcelFiles. It also enables the user to upload a new Excel-file to the service, or download the [template-excelfile](./Source/ConnectorService/Resources/ExcelConnectorWithCapabilities.xlsx). 
 
 All endpoints configured for this sample can be found in [ExcelHandlerEndpoints.cs](./Source/ConnectorService/Api/ExcelHandlerEndpoints.cs).
 
-To easily get access to use/test these endpoints the projects uses `Swagger`. For production it is recommended to add security to this API.
+To easily get access to use/test these endpoints the projects uses `Swagger`. All endpoints require the `X-Api-Key` header (`ConnectorService:ApiKey`); use the **Authorize** button in Swagger to set it.
+
+`GET /signing-keys` lists the SuperOffice signing keys the service has currently loaded (key ID, certificate subject and validity). Use it after deploying to check that keys for all three environments were loaded.
 
 ## QuoteConnector
 Contains the implementation of the QuoteConnector, using a locally stored Excel file as the data source. **This implementation is not intended for production use, but as a sample for how to implement a QuoteConnector.**
@@ -66,23 +77,23 @@ To set up a new QuoteConnector the following steps needs to be completed:
 1. [Create a quote connector][0]
 2. [Register an app][1] (shared by the ERPConnector and QuoteConnector)
 3. [Configure the application with service endpoints][2]
-4. [Host the application](#Hosting)
+4. [Host the application](#hosting)
 5. [Create a new Quote Connector in SuperOffice Admin][3]
 
 Note: The ERPConnector and QuoteConnector share one application (`ConnectorService:ClientId`).
 
 ### Hosting
 
-SuperOffice does not require the service to be hosted in a specific way, but it needs to be accesible externally. One way to host the service is to use [Azure App Services][5], but any hosting provider that supports .Net Core should work.
+SuperOffice does not require the service to be hosted in a specific way, but it needs to be accessible externally. One way to host the service is to use [Azure App Services][5], but any hosting provider that supports .Net Core should work.
 
-Alternatively it can be run directly from Visual Studio by using the launcSettings.json for https:
+Alternatively it can be run directly from Visual Studio by using the launchSettings.json for https:
 ![Vs Hosting](Resources/vs-hosting.png)
 
 #### Ngrok
 
 For local development you can use [ngrok](https://ngrok.com/) to expose your local service to the internet. This is useful for testing the service with SuperOffice Online.
 
-Through Ngrok.exe you can run this command to create a tunnel for a locally runnig SSL secure endpoint: 
+Through Ngrok.exe you can run this command to create a tunnel for a locally running SSL secure endpoint: 
 
 `ngrok http https://localhost:7128 --url=YOURDOMAIN.ngrok-free.app`
 
@@ -100,9 +111,6 @@ Adjust port 7128 to be the port for the internally running application, and YOUR
     }
   },
   "AllowedHosts": "*",
-  "SuperId": {
-    "Certificate": "16b7fb8c3f9ab06885a800c64e64c97c4ab5e98c"
-  },
   "Application": {
     "EnableHttpsEndpoints": true,
     "Host": "HOSTNAME",
@@ -150,10 +158,10 @@ The reasoning for setting `Application.Host` specifically can be seen in [this d
 The data provided by the connectors are all located in [Resources](./Source/ConnectorService/Resources). 
 
 * ERP_Connections.txt - Used by ErpConnector to store information about a connection that has been created. 
-* ErpClient.xslm - Used by the ErpConnector to provide data back to SuperOffice.
+* ErpClient.xlsm - Used by the ErpConnector to provide data back to SuperOffice.
 * ExcelConnectorWithCapabilities.xlsx - Used by the ExcelQuoteConnector to provide data back to SuperOffice.
 
-Editing these files will reflect the data seen inside of SuperOffice, and in SuperOffice Admin it is neccessary to point to the correct file to get the data. It is also possible to upload your own files, through the [Minimalistic API](#Minimalistic_API), or download one of the existing 'templates' above and re-upload new versions.
+Editing these files will reflect the data seen inside of SuperOffice, and in SuperOffice Admin it is necessary to point to the correct file to get the data. It is also possible to upload your own files, through the [Minimalistic API](#minimalistic-api), or download one of the existing 'templates' above and re-upload new versions.
 
 In a real-world scenario, the data would be fetched from an external system, and not stored in the project itself.
 

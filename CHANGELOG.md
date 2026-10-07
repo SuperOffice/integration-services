@@ -4,6 +4,30 @@ All notable changes to this project are documented in this file, grouped by pull
 
 The categories follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [#4](https://github.com/SuperOffice/integration-services/pull/4) Validate SuperOffice tokens against published signing keys (unreleased)
+
+### Added
+
+- `GET /signing-keys` lists the SuperOffice signing keys the service has loaded (key ID, certificate subject and validity).
+- README section on how `Authenticate` validates tokens and signs the nonce.
+
+### Changed
+
+- `QuoteConnectorWS` and `ErpConnectorWS` share one `Authenticate` implementation (`IntegrationServiceAuthentication`). `ErpConnectorWS` now also rejects tokens without a nonce.
+- Token validation only accepts RS256 signatures.
+- A wrong audience now returns the generic "Failed to validate authentication request" reason; the specific error is logged.
+- Both connector services take the same constructor parameters, and the partner token issuer is registered once in DI.
+
+### Fixed
+
+- Tokens were validated against the bundled SOD (development) certificate only, so tokens from qaonline and online would be rejected. They are now validated against the signing keys SuperOffice publishes for `sod`, `qaonline` and `online`, which are loaded at startup and refreshed automatically.
+- README: corrected line links, section anchors, the `ErpClient.xlsm` file name and typos, and replaced the outdated note about securing the API.
+
+### Removed
+
+- `App_Data/SuperOfficeFederatedLogin.crt`, `SuperIdOptions` and the `SuperId` section in `appsettings.json`.
+- Unused constructor parameters and the unused `GetPrivateKey()` in `ErpConnectorWS`.
+
 ## [#3](https://github.com/SuperOffice/integration-services/pull/3) Fix startup, Docker build and stale configuration (unreleased)
 
 ### Added

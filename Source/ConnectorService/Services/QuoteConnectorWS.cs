@@ -1,49 +1,37 @@
 ﻿
 
+using ConnectorService.Authentication;
 using ConnectorService.Models;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using SuperOffice.Connectors;
 using SuperOffice.Online.IntegrationService;
 using SuperOffice.Online.IntegrationService.Contract.V1;
 using SuperOffice.Online.Tokens;
 using SuperOffice.SuperID.Contracts;
 using SuperOffice.SuperID.Contracts.V1;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 
 namespace ConnectorService.Services
 {
     public class QuoteConnectorWS : OnlineQuoteConnector<QuoteConnector>, IIntegrationServiceConnectorAuth
     {
         public const string Endpoint = "QuoteConnectorWS.svc";
-        private readonly SuperIdOptions _superIdOptions;
         private readonly ConnectorServiceOptions _connectorServiceOptions;
         private readonly ISuperOfficeTokenValidator _superOfficeTokenValidator;
-        private readonly PartnerTokenIssuer _partnerTokenIssuer;
+        private readonly IPartnerTokenIssuer _partnerTokenIssuer;
         private readonly ILogger<QuoteConnectorWS> _logger;
 
         public QuoteConnectorWS(
-            IOptions<SuperIdOptions> superIdOptions,
             IOptions<ConnectorServiceOptions> connectorServiceOptions,
             ILogger<QuoteConnectorWS> logger,
-            ISuperOfficeTokenValidator superOfficeTokenValidator = null,
-            IPartnerTokenIssuer partnerTokenIssuer = null
-            ) : base
-            (
-                connectorServiceOptions.Value.ClientId,
-                //GetPrivateKey(connectorServiceOptions.Value.PrivateKeyFile)
-                connectorServiceOptions.Value.PrivateKeyFile
-            )
-            {
-                _logger = logger;
-                _superIdOptions = superIdOptions.Value;
-                _connectorServiceOptions = connectorServiceOptions.Value;
-                _superOfficeTokenValidator = superOfficeTokenValidator
-                ?? new SuperOfficeTokenValidator(new LocalStoreSuperIdCertificateResolver(thumbbprint: _superIdOptions.Certificate)); // This certificate should be loaded from online's discovery document.
-                _partnerTokenIssuer = new PartnerTokenIssuer(new PartnerCertificateResolver(() => PrivateKey));
-            }
+            ISuperOfficeTokenValidator superOfficeTokenValidator,
+            IPartnerTokenIssuer partnerTokenIssuer
+        ) : base(connectorServiceOptions.Value.ClientId, connectorServiceOptions.Value.PrivateKeyFile)
+        {
+            _logger = logger;
+            _connectorServiceOptions = connectorServiceOptions.Value;
+            _superOfficeTokenValidator = superOfficeTokenValidator;
+            _partnerTokenIssuer = partnerTokenIssuer;
+        }
 
         /// <summary>
         /// Authenticates an integration service request by validating the provided signed token and ensuring it matches the expected audience.
@@ -52,51 +40,7 @@ namespace ConnectorService.Services
         /// <param name="request">The authentication request containing the signed token.</param>
         /// <returns>An AuthenticationResponse indicating the result of the authentication process.</returns>
         AuthenticationResponse IIntegrationServiceConnectorAuth.Authenticate(AuthenticationRequest request)
-        {
-            var applicationIdentifier = _connectorServiceOptions.ClientId;
-
-            try
-            {
-
-                var token = ValidateSuperOfficeSignedToken(request.SignedToken);
-
-                var audience = token.FindFirst("aud")?.Value;
-                if (!string.Equals("spn:" + applicationIdentifier, audience, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return new AuthenticationResponse
-                    {
-                        Succeeded = false,
-                        Reason = "Wrong audience, missmatch on application identifier"
-                    };
-                }
-
-                // Get nonce and sign the partner token
-                var nonce = token.GetNonce();
-                if (string.IsNullOrEmpty(nonce))
-                {
-                    return new AuthenticationResponse
-                    {
-                        Succeeded = false,
-                        Reason = "Failed to retrieve nonce from the token"
-                    };
-                }
-
-                return new AuthenticationResponse
-                {
-                    Succeeded = true,
-                    SignedApplicationToken = _partnerTokenIssuer.SignPartnerToken(token: nonce)
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to validate authentication request");
-                return new AuthenticationResponse
-                {
-                    Succeeded = false,
-                    Reason = "Failed to validate authentication request"
-                };
-            }
-        }
+            => IntegrationServiceAuthentication.Authenticate(request, _superOfficeTokenValidator, _connectorServiceOptions.ClientId, _partnerTokenIssuer, _logger);
 
         /// <summary>
         /// Retrieves the inner typed quote connector based on the provided request.
@@ -145,27 +89,6 @@ namespace ConnectorService.Services
             }
 
             return updatedConnectionConfigFields;
-        }
-
-        protected override ClaimsIdentity ValidateSuperOfficeSignedToken(string token)
-        {
-            string ValidIssuer = "SuperOffice AS";
-
-            var certificatePath = "App_Data/SuperOfficeFederatedLogin.crt";
-
-            if (string.IsNullOrEmpty(certificatePath) || !File.Exists(certificatePath))
-            {
-                throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
-            }
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenValidationParameters = new TokenValidationParameters();
-            tokenValidationParameters.ValidateAudience = false;
-            tokenValidationParameters.ValidIssuer = ValidIssuer;
-            tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(certificatePath));
-
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-            return principal.Identities.OfType<ClaimsIdentity>().FirstOrDefault();
         }
     }
 }
